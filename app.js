@@ -19,7 +19,7 @@ router.use(function(req, res, next){
 router.get("/", function(req, res){
 	res.json({message: 'wellcome'});
 });
-router.route('/bear')
+router.route('/bears')
 	.post(function(req, res){
 		var bear = new Bear();
 		console.log(req.body);
@@ -29,7 +29,43 @@ router.route('/bear')
 				res.send(err);
 			res.json({ message: 'Bear Created'});
 		});
-});
+	})
+	.get(function(req, res){
+		Bear.find(function(err, bears) {
+			if (err)
+				res.send(err);
+			res.json(bears);
+		})
+	});
+
+router.route('/bears/:bear_id')
+	.get(function(req, res){
+		console.log(req.params);
+		Bear.findById(req.params.bear_id, function(err, bear){
+			if (err)
+				res.send(err);
+			res.json(bear);
+		});
+	})
+	.put(function(req, res){
+		Bear.findById(req.params.bear_id, function(err, bear){
+			if (err)
+				res.send(err);
+			bear.name = req.body.name;
+			bear.save(function(err){
+				if (err)
+					res.send(err);
+				res.json({ message: 'bear updated!'});
+			});
+		});
+	})
+	.delete(function(req, res){
+		Bear.remove({_id:req.params.bear_id}, function(err, bear){
+			if (err)
+				res.send(err);
+			res.json({ message: 'bear deleted!'});
+		});
+	});
 
 app.use('/api', router);
 app.listen(port);
