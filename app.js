@@ -1,13 +1,16 @@
 var express		= require('express');
-var bodyParser	= require('body-parser');
+/*var bodyParser	= require('body-parser');*/
 var mongoose	= require('mongoose');
 var Bear		= require('./models/bear');
 
 var app	= express();
 mongoose.connect('mongodb://localhost/mydb');
 
-app.use(bodyParser.urlencoded({extended:true}));
-app.use(bodyParser.json());
+app.set('views', './views');
+app.set('view engine', 'jade')
+
+/*app.use(bodyParser.urlencoded({extended:true}));
+app.use(bodyParser.json());*/
 
 var port	= process.env.PORT || 8080;
 var router	= express.Router();
@@ -16,9 +19,11 @@ router.use(function(req, res, next){
 	console.log("Something is happening");
 	next();
 });
+
 router.get("/", function(req, res){
-	res.json({message: 'wellcome'});
+	res.render('index', {title: 'Jade!'});
 });
+
 router.route('/bears')
 	.post(function(req, res){
 		var bear = new Bear();
