@@ -11,9 +11,24 @@ app.set('view engine', 'jade')
 
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
+app.use(express.static(__dirname + '/'));
 
-var port	= process.env.PORT || 8080;
-var router	= express.Router();
+var port		= process.env.PORT || 8080;
+var router		= express.Router();
+var webRouter	= express.Router();
+
+webRouter.use(function(req, res, next){
+	console.log("Web request is coming");
+	next();
+});
+
+webRouter.get("/", function(req, res){
+	res.sendFile('hello.html', {root: __dirname });
+});
+/*
+app.get('/test', function(req, res) {
+    res.sendFile('hello.html', {root: __dirname })
+});*/
 
 router.use(function(req, res, next){
 	console.log("Something is happening");
@@ -23,6 +38,7 @@ router.use(function(req, res, next){
 router.get("/", function(req, res){
 	res.render('index', {title: 'Jade!'});
 });
+
 
 router.route('/bears')
 	.post(function(req, res){
@@ -73,6 +89,7 @@ router.route('/bears/:bear_id')
 	});
 
 app.use('/api', router);
+app.use('', webRouter);
 app.listen(port);
 console.log('Magic is happening on port ' + port);
 
