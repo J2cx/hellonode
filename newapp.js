@@ -1,45 +1,31 @@
 var express		= require('express');
 var bodyParser	= require('body-parser');
-var mongoose	= require('mongoose');
-var Bear		= require('./models/bear');
+var Person		= require('./models/person');
+var BO			= require('./bo');
 
-var app	= express();
-mongoose.connect('mongodb://localhost/mydb');
-
-app.set('views', './views');
-app.set('view engine', 'jade')
-
-app.use(bodyParser.urlencoded({extended:true}));
-app.use(bodyParser.json());
+var app = new express();
 
 var port	= process.env.PORT || 8080;
 var router	= express.Router();
+
+app.use(bodyParser.urlencoded({extended:true}));
+app.use(bodyParser.json());
 
 router.use(function(req, res, next){
 	console.log("Something is happening");
 	next();
 });
 
-router.get("/", function(req, res){
-	res.render('index', {title: 'Jade!'});
-});
-
-router.route('/bears')
+router.route('/people')
 	.post(function(req, res){
-		var bear = new Bear();
-		console.log(req.body);
-		bear.name = req.body.name;
-		bear.save(function(err){
-			if (err)
-				res.send(err);
-			res.json({ message: 'Bear Created'});
-		});
+		BO.add(req.body);
+		res.json(req.body);
 	})
 	.get(function(req, res){
-		Bear.find(function(err, bears) {
+		Person.find(function(err, people) {
 			if (err)
 				res.send(err);
-			res.json(bears);
+			res.json(people);
 		})
 	});
 
@@ -75,11 +61,3 @@ router.route('/bears/:bear_id')
 app.use('/api', router);
 app.listen(port);
 console.log('Magic is happening on port ' + port);
-
-/*app.get('', function(req, res){
-	res.send('hello world!');
-});
-
-var server = app.listen(3000, function(){
-	console.log('listen on port %d', server.address().port);
-});*/
